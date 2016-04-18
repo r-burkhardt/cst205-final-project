@@ -116,7 +116,7 @@ else:
 global mapImage
 mapImage = makePicture(mapFile)
 
-### Defines Global Variables
+### Initalizes Global Variables
 global CURRENTLOCATION
 global PREVIOUSLOCATION
 global VISITEDLOCATIONS
@@ -125,93 +125,109 @@ global TIME
 
 ### Primary Game Play
 def playGame():
+  ### Defines Global Variables
   global CURRENTLOCATION
   CURRENTLOCATION = ""
   global PREVIOUSLOCATION
   PREVIOUSLOCATION = ""
   global VISITEDLOCATIONS
   VISITEDLOCATIONS = []
-  ### Set Time and Money with Random
   global MONEY
-  MONEY = 1000 #randrange(2900,6000,100)
+  MONEY = randrange(1800,4800,100) ### Set Money with Random
   global TIME
-  TIME = 18 #randrange(56,96,2)
+  TIME = randrange(36,96,3) ### Set Time with Random
 
   gameInPlay = true
   playCount = 0
+  attemptFailures = 3
+  
+  startMessage = "Welcome to BEAT LOS ANGELES\n\n"
+  startMessage += "The objective of the game is to see as many sights\n"
+  startMessage += "in Los Angeles on your given budget and in the\n"
+  startMessage += "given amount of time. As you tour the city, a map\n"
+  startMessage += "will display display to giving you an the opperunity\n"
+  startMessage += "to see where you have been.\n\n"
+  startMessage += "Directions: In the input box you will input the location\n"
+  startMessage += "you would like to visit. Beware someplaces maybe\n"
+  startMessage += "expensive and could burn up a good chunk of your time.\n\n"
+  startMessage += "Enter \"help\" at any move prompt for the help info.\n"
+  startMessage += "Enter \"list\" at any move prompt for the list cities.\n"
+  startMessage += "Enter \"map\" at any move prompt to open the map of Los Angeles.\n"
+  startMessage += "Enter \"exit\" at any move prompt to exit the game.\n"
+    
+  showInformation(startMessage)
+  show(mapImage)
 
   while gameInPlay:
     userChoice = ""
   
     if playCount == 0:
-      startMessage = "Welcome to BEAT LOS ANGELES\n\n"
-      startMessage += "The objective of the game is to see as many sights\n"
-      startMessage += "in Los Angeles on your given budget and in the\n"
-      startMessage += "given amount of time. As you tour the city, a map\n"
-      startMessage += "will display display to giving you an the opperunity\n"
-      startMessage += "to see where you have been.\n\n"
-      startMessage += "Directions: here\n"
-      startMessage += "Enter \"map\" at any move prompt for the help info.\n"
-      startMessage += "Enter \"help\" at any move prompt for the help info.\n"
-      startMessage += "Enter \"exit\" at any move prompt to exit the game.\n"
-    
-      showInformation(startMessage)
-      show(mapImage)
-      questionMessage = 'Enter your first stop in Los Angeles.'
+      questionMessage = 'Your Starting Budget for touring Los Angels:\n'
+      questionMessage += "Money: $%.2f and Time: %s\n\n" % (MONEY, convertTimeHourMin(TIME))
+      questionMessage += 'Enter your first stop in Los Angeles.'
     else:
-      questionMessage = 'Enter your next stop in Los Angeles.'
+      questionMessage = 'Your Remainin Budget for touring Los Angels:\n'
+      questionMessage += "Money: $%.2f and Time: %s\n\n" % (MONEY, convertTimeHourMin(TIME))
+      questionMessage += 'Enter your next stop in Los Angeles.'
       
     choiceIsGood = false        
     while choiceIsGood == false:
       userChoice = requestString(questionMessage)
-      #gameInPlay = checkForExit(userChoice.lower())
       choiceIsGood = validateChoice(userChoice.lower())
-      if userChoice.lower() == "exit":
-        exitYesOrNo = requestString("Are you sure want to exit? (yes/no)")
-        if exitYesOrNo.lower() == "yes":
-          exitMessage = "Thank you for playing!\n"
-          exitMessage += "Please click the OK button below,and give us a moment to\n"
-          exitMessage += "process your postcard with the images of the places you visited."
-          showInformation(exitMessage)
-          return false
-      elif userChoice.lower() == "help":
-        print "help"
-      elif userChoice.lower() == "list":
-        print "list"
-      elif userChoice.lower() == "map":
-        show(mapImage)
-      else:
-        correctKey = correctName(userChoice.lower())
-        if correctKey != "":
-          if checkPurse(LOCATIONS[correctKey]):
-            gameInPlay = processChoice(userChoice.lower())
-          else:
-            showInformation("You don\'t have enough money or time to go to " + correctKey + "!")
-            choiceIsGood = false
+      if choiceIsGood:
+        if userChoice.lower() == "exit":
+          exitYesOrNo = requestString("Are you sure want to exit? (yes/no)")
+          if exitYesOrNo.lower() == "yes":
+            exitMessage = "Thank you for playing!\n"
+            if len(VISITEDLOCATIONS) > 0:
+              exitMessage += "Please click the OK button below,and give us a moment to"
+              exitMessage += "process your postcard with the images of the places you visited."
+            showInformation(exitMessage)
+            gameInPlay = false
+        elif userChoice.lower() == "help":
+          showInformation(gameHelp())
+        elif userChoice.lower() == "list":
+          showInformation(listLocations())
+        elif userChoice.lower() == "map":
+          show(mapImage)
         else:
-          playerBroke = checkIfMoneyTimeGood(LOCATIONS[CURRENTLOCATION], LOCATIONS[correctKey])
-          if playerBroke:
-            print "you lose"
+          correctKey = correctName(userChoice.lower())
+          if CURRENTLOCATION == "":
+            if checkPurse(LOCATIONS[correctKey]):
+              gameInPlay = processChoice(userChoice.lower())
+              playCount += 1
+            else:
+              if MONEY > 40 and TIME >3:
+                showInformation("You don\'t have enough money or time to go to " + correctKey + "!")
+                choiceIsGood = true
+              else:
+                showInformation("You don\'t have enough money or time to go to " + correctKey + "!")
+                attemptFailures -= 1
+                choiceIsGood = true
           else:
-            gameInPlay = processChoice(userChoice.lower())
-      playCount += 1
+            if checkIfMoneyTimeGood(LOCATIONS[CURRENTLOCATION], LOCATIONS[correctKey]):
+              if MONEY > 100 and TIME >4:
+                showInformation("You don\'t have enough money or time to go to " + correctKey + "!")
+                choiceIsGood = true
+              else:
+                showInformation("You don\'t have enough money or time to go to " + correctKey + "!")
+                attemptFailures -= 1
+                choiceIsGood = true
+            else:
+              gameInPlay = processChoice(userChoice.lower())
+              playCount += 1
+        if attemptFailures == 0:
+          sorryMessage = "SORRY! GAME OVER!\n"
+          sorryMessage += "Sorry you have made three unsuccesful attempts to\n"
+          sorryMessage += "travel. You have run out of Money or Time to continue\n"
+          sorryMessage += "your tour of Los Angeles. Please click the OK button\n"
+          sorryMessage += "below, and give us a moment to process your postcard\n"
+          sorryMessage += "with the images of the places you visited."
+          showInformation(sorryMessage)
+          gameInPlay = false
       
-  print VISITEDLOCATIONS
-    
-    
-def checkForExit(choice):
-  if choice == "exit":
-    exitYesOrNo = requestString("Are you sure want to exit? (yes/no)")
-    if exitYesOrNo.lower() == "yes":
-      exitMessage = "Thank you for playing!\n"
-      exitMessage += "Please click the OK button below,and give us a moment to\n"
-      exitMessage += "process your postcard with the images of the places you visited."
-      showInformation(exitMessage)
-      return false
-  else:
-    return true
 
-
+### Verifies that the User's Choice is valid for any of the locations in the game
 def validateChoice(choice):
   if choice == "beverly hills" or \
     choice == "getty center" or \
@@ -251,7 +267,8 @@ def validateChoice(choice):
     showError("Invalid entry!")
     return false
 
-    
+### Used to make sure the User's Choice is in correct form
+### to be used as a key for the LOCATIONS dictonary    
 def correctName(choice):
   if choice == "beverly hills":
     return "Beverly Hills"
@@ -301,7 +318,7 @@ def correctName(choice):
   else:
     return ""
 
-
+### Acts upon the User's Choice
 def processChoice(choice):
   processString = ""
   
@@ -380,7 +397,7 @@ def processChoice(choice):
   showInformation(processString)
   return true
 
-
+### Takes location to go to and process it, returning a string for display to player
 def processLocation(location):
   global CURRENTLOCATION
   global PREVIOUSLOCATION
@@ -403,7 +420,7 @@ def processLocation(location):
   returnString += "You have $%.2f and %s remaining in your visit to Los Angeles!" % (MONEY, convertTimeHourMin(TIME))
   return returnString
 
-
+### Adds visited location to VISITEDLOCATIONS list
 def addToVisited(location):
   global VISITEDLOCATIONS
   exists = false
@@ -413,7 +430,7 @@ def addToVisited(location):
   if exists == false:
     VISITEDLOCATIONS.append(location)
       
-
+### Converts Decimal time to worded string
 def convertTimeHourMin(time):
   timeInMin = time * 60
   if timeInMin < 60:
@@ -431,7 +448,8 @@ def convertTimeHourMin(time):
         return str(1) + " hour, " + str(int(timeMin)) + " minutes"
       else:
         return str(1) + " hour"
-        
+
+### Checks if player has enough money to go to the first location                
 def checkPurse(location):
   if MONEY > location.cost:
     if TIME > location.time:
@@ -441,6 +459,8 @@ def checkPurse(location):
   else:
     return false
       
+### Makes sure player has enough money to go from
+### current location to new location before allowing travel      
 def checkIfMoneyTimeGood(current, desired):
   travelToDesiredTime = current.travelTable[desired.name]
   requiredTime = desired.time + travelToDesiredTime
@@ -452,9 +472,31 @@ def checkIfMoneyTimeGood(current, desired):
   else:
     return false
     
+### Creates List of locations for the player to viewer
+def listLocations():
+  alphaList = []
+  returnString = ""
+  for place in LOCATIONS:
+    alphaList.append(LOCATIONS[place].name)
+  alphaList.sort()
+  for word in alphaList:
+    returnString += word + "\n"
+  return returnString
 
-
-
+def gameHelp():
+  returnString = "The objective of the game is to see as many sights\n"
+  returnString += "in Los Angeles on your given budget and in the\n"
+  returnString += "given amount of time. As you tour the city, a map\n"
+  returnString += "will display display to giving you an the opperunity\n"
+  returnString += "to see where you have been.\n\n"
+  returnString += "Directions: In the input box you will input the location\n"
+  returnString += "you would like to visit. Beware someplaces maybe\n"
+  returnString += "expensive and could burn up a good chunk of your time.\n\n"
+  returnString += "Enter \"help\" at any move prompt for the help info.\n"
+  returnString += "Enter \"list\" at any move prompt for the list cities.\n"
+  returnString += "Enter \"map\" at any move prompt to open the map of Los Angeles.\n"
+  returnString += "Enter \"exit\" at any move prompt to exit the game.\n"
+  return returnString
 
 
 
