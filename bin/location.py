@@ -3,17 +3,18 @@
   Program:  Name of Program
   File name:  location.py
   Files imported:  None
-  Author:  name here
+  Author:  Roderick Burkhardt, Fiaga Revah
   Team:  MB Overloaders
-  Date created:  2016/04/02
-  Date last modified:  2016/04/02
+  Team members:  Roderick Burkhardt, Faiga Revah, Mina Mansour, Agustin Preciado
+  Date created:  2016/04/14
+  Date last modified:  2016/04/16
   Version:  0.0.1
 
 '''
 import sys
 from string import *
 
-# Begin Code
+### Begin Class
 
 class Location(object):
   """A class that describes a location"""
@@ -36,8 +37,8 @@ class Location(object):
   def getTravelTime(self, fromLocation):
     return self.travelTable[fromLocation]
     
-    
-santaMonicaPier = Location("Santa Monica", "You are standing on the beach in Santa Monica.",100.00, 4, {'Beverly Hills':1,'Getty Museum':0.75,'Grauman\'s Chinese Theater':1,'Griffith Observatory':1,'LaBrea Tar Pits':0.25,'LACMA':0,'Los Angeles City Hall':1.25,'Los Angeles Zoo':1.75,'MONA':2,'Norton Simon Museum':2.5,'Olvera Street':1.25,'Santa Monica Pier':1.25,'UCLA':0.5,'Union Station':1.25,'Universal Studios':1.75,'West Hollywood':0.75,})
+### Testing Code   
+#santaMonicaPier = Location("Santa Monica", "You are standing on the beach in Santa Monica.",100.00, 4, {'Beverly Hills':1,'Getty Museum':0.75,'Grauman\'s Chinese Theater':1,'Griffith Observatory':1,'LaBrea Tar Pits':0.25,'LACMA':0,'Los Angeles City Hall':1.25,'Los Angeles Zoo':1.75,'MONA':2,'Norton Simon Museum':2.5,'Olvera Street':1.25,'Santa Monica Pier':1.25,'UCLA':0.5,'Union Station':1.25,'Universal Studios':1.75,'West Hollywood':0.75,})
 
 #print santaMonicaPier.displayLocation()
 #print santaMonicaPier.displayLocCostTime()
