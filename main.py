@@ -515,6 +515,9 @@ def checkForWin():
     winMessage += "while Me make you a suvenior postcard of your tour."
     showInformation(winMessage)
     return false
+  else:
+    return true
+    
 
 
 
